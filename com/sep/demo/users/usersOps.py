@@ -90,3 +90,7 @@ def validateUser(_email, passwords):
         return "Login successfull"
     elif True != _flag:
         return "Login failed"
+
+def extractUserId(_email):
+    User = session.query(userData).filter_by(email=_email).one()
+    return User.id
