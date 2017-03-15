@@ -1,2 +1,8 @@
 ## Idea file
 .idea
+
+## DB File
+requestOps.pyc
+models.pyc
+Requests.db
+Users.db
