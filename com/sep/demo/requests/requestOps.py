@@ -15,9 +15,7 @@ session = DBSession()
 
 def requestFunc():
     if request.method == 'GET':
-        # Call the method to Get all of the puppies
-        # return getAllRequests()
-        return "GETCALL"
+        return getRequest()
     elif request.method == 'POST':
         return createRequest()
 
@@ -62,3 +60,7 @@ def createRequest():
         session.rollback()
         err.message
         return "Something went wrong, we also dont know!!"
+
+def getRequest():
+    request = session.query(requestData).all()
+    return jsonify(RequestDetails=[i.serialize for i in request])

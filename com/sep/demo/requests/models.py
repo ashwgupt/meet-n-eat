@@ -25,8 +25,6 @@ class requestData(Base):
             'user_id': self.user_id,
             'id': self.id,
             'meal_type': self.meal_type,
-            'latitude': self.latitude,
-            'longitude': self.longitude,
             'location_string': self.location_string,
             'meal_time': self.meal_time,
             'filled': self.filled
