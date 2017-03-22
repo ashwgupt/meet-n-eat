@@ -18,6 +18,10 @@ def login():
 def request():
     return requestOps.requestFunc()
 
+@app.route("/api/v1/requests/<int:id>", methods = ['GET', 'PUT', 'DELETE'])
+def requestId(id):
+    return requestOps.RequestId(id)
+
 if __name__ == '__main__':
     app.debug = False
     app.run(host='0.0.0.0', port=5000)

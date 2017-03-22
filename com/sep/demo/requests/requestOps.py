@@ -27,19 +27,15 @@ def prepareRequest():
     try:
         for item in jsonData:
             mealType = item.get("mealType")
-            print mealType
             mealTime = item.get("mealTime")
-            print mealTime
             location = item.get("location")
-            print location
             emailId = item.get("emailId")
-            print emailId
 
             userId = extractUserId(emailId)
-            print userId
-            latitude, longitude = getGeocodeLocation(location)
-            print latitude
-            print longitude
+            latitude = None
+            longitude = None
+            if location is not None:
+                latitude, longitude = getGeocodeLocation(location)
             return mealTime, mealType, longitude, latitude, location, userId
     except TypeError as err:
         return "Mandatory fields missing or Incorrect datatype passed " \
@@ -56,11 +52,56 @@ def createRequest():
         session.rollback()
         print err.message
         return "Malformed Input!!"
+    except exc.IntegrityError:
+        session.rollback()
+        return "Missing required field"
     except Exception as err:
         session.rollback()
-        err.message
+        print err.message
         return "Something went wrong, we also dont know!!"
 
 def getRequest():
     request = session.query(requestData).all()
+    return jsonify(RequestDetails=[i.serialize for i in request])
+
+def RequestId(id):
+    if request.method == 'GET':
+         return getRequestId(id)
+    elif request.method == 'PUT':
+        return modifyRequest(id)
+    elif request.method == 'DELETE':
+        return deleteRequest(id)
+
+def getRequestId(id):
+    try:
+        request = session.query(requestData).filter_by(id = id)
+        return jsonify(RequestDetails=[i.serialize for i in request])
+    except Exception:
+        session.rollback()
+        return "No such user exists!!"
+
+def deleteRequest(id):
+   try:
+       requests = session.query(requestData).filter_by(id=id).one()
+   except Exception:
+         session.rollback()
+         return "No such user exists!!"
+   session.delete(requests)
+   return "Delete!!"
+
+def modifyRequest(id):
+    new_meal_time, new_meal_type, new_longitude, new_latitude, new_location_string, new_userId = prepareRequest()
+    request = session.query(requestData).filter_by(id = id)
+    try:
+        if new_meal_time is not None:
+            request.update({"meal_time": new_meal_time})
+        if new_meal_type is not None:
+            request.update({"meal_type": new_meal_type})
+        if new_location_string is not None:
+            request.update({"location_string": new_location_string,"longitude": new_longitude,"latitude": new_latitude})
+        session.commit()
+    except Exception as err:
+        session.rollback
+        print err.message
+    request = session.query(requestData).filter_by(id = id)
     return jsonify(RequestDetails=[i.serialize for i in request])
