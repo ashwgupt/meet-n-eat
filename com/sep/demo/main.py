@@ -10,6 +10,11 @@ app = Flask(__name__)
 def users():
     return usersOps.userFunction()
 
+@app.route("/api/v1/users/<int:id>", methods = ['GET', 'PUT', 'DELETE'])
+def modifyUsers(id):
+    return usersOps.userId(id)
+
+
 @app.route("/api/v1/login", methods = ['GET', 'POST'])
 def login():
     return usersOps.loginUser()

@@ -78,14 +78,14 @@ def getRequestId(id):
         return jsonify(RequestDetails=[i.serialize for i in request])
     except Exception:
         session.rollback()
-        return "No such user exists!!"
+        return "No such request exists!!"
 
 def deleteRequest(id):
    try:
        requests = session.query(requestData).filter_by(id=id).one()
    except Exception:
          session.rollback()
-         return "No such user exists!!"
+         return "No such request exists!!"
    session.delete(requests)
    return "Delete!!"
 

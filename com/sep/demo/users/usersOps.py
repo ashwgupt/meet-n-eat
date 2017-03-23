@@ -1,7 +1,7 @@
 import json
 
 from flask import Flask, request, jsonify
-from sqlalchemy import create_engine, exc
+from sqlalchemy import create_engine, exc, exists
 from sqlalchemy.orm import sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import Base,userData
@@ -16,11 +16,8 @@ app = Flask(__name__)
 
 def userFunction():
   if request.method == 'GET':
-    #Call the method to Get all of the puppies
-    print "GET CALL"
     return getAllUsers()
   elif request.method == 'POST':
-	#Call the method to make a new puppy
     print "Making a New User"
     rdata = request.data
     rawdata = json.loads(rdata)
@@ -51,8 +48,6 @@ def loginUser():
         for item in jsonData:
             email = item.get("email")
             passwords = item.get("password")
-            # name = request.args.get('name', '')
-            # description = request.args.get('description', '')
 
         return validateUser(email, passwords)
 
@@ -94,3 +89,50 @@ def validateUser(_email, passwords):
 def extractUserId(_email):
     User = session.query(userData).filter_by(email=_email).one()
     return User.id
+
+def userId(id):
+    if request.method == 'GET':
+         return getUser(id)
+    elif request.method == 'PUT':
+         return modifyUser(id)
+    elif request.method == 'DELETE':
+        return deleteUser(id)
+
+def deleteUser(_id):
+    try:
+        User = session.query(userData).filter_by(id=_id).one()
+    except Exception:
+        session.rollback()
+        return "No such user exists!!"
+    session.delete(User)
+    session.commit()
+    return "User deleted!!"
+
+def modifyUser(id):
+    user = session.query(userData).filter_by(id = id)
+    rdata = request.data
+    rawdata = json.loads(rdata)
+    jsonData = rawdata["UserDetails"]
+
+    for item in jsonData:
+        password = item.get("password")
+    try:
+        if password is not None:
+            password_hash = generate_password_hash(password)
+            user.update({"password_hash": password_hash})
+        session.commit()
+    except Exception as err:
+        session.rollback
+        print err.message
+    user = session.query(userData).filter_by(id = id)
+    return jsonify(RequestDetails=[i.serialize for i in user])
+
+def getUser(id):
+    try:
+        #user = session.query(userData).filter_by(id = id).first()
+        user = session.query((userData).exists().where(id == id)).scalar()
+        return jsonify(UserDetails=[i.serialize for i in user])
+    except Exception as err:
+        session.rollback()
+        print err.message
+        return "No such user exists!!"
