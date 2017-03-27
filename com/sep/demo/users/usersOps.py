@@ -109,7 +109,11 @@ def deleteUser(_id):
     return "User deleted!!"
 
 def modifyUser(id):
-    user = session.query(userData).filter_by(id = id)
+    try:
+        user = session.query(userData).filter_by(id = id).one()
+    except Exception as err:
+        print err.message
+        return "No such user exists!!"
     rdata = request.data
     rawdata = json.loads(rdata)
     jsonData = rawdata["UserDetails"]
@@ -124,15 +128,13 @@ def modifyUser(id):
     except Exception as err:
         session.rollback
         print err.message
-    user = session.query(userData).filter_by(id = id)
-    return jsonify(RequestDetails=[i.serialize for i in user])
+    user = session.query(userData).filter_by(id = id).one()
+    return jsonify(UserDetails=[user.serialize])
 
 def getUser(id):
     try:
-        #user = session.query(userData).filter_by(id = id).first()
-        user = session.query((userData).exists().where(id == id)).scalar()
-        return jsonify(UserDetails=[i.serialize for i in user])
+        user = session.query(userData).filter_by(id = id).one()
+        return jsonify(UserDetails=[user.serialize])
     except Exception as err:
-        session.rollback()
         print err.message
         return "No such user exists!!"
