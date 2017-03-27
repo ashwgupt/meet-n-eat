@@ -74,8 +74,8 @@ def RequestId(id):
 
 def getRequestId(id):
     try:
-        request = session.query(requestData).filter_by(id = id)
-        return jsonify(RequestDetails=[i.serialize for i in request])
+        request = session.query(requestData).filter_by(id = id).one()
+        return jsonify(RequestDetails=[request.serialize])
     except Exception:
         session.rollback()
         return "No such request exists!!"
@@ -91,7 +91,11 @@ def deleteRequest(id):
 
 def modifyRequest(id):
     new_meal_time, new_meal_type, new_longitude, new_latitude, new_location_string, new_userId = prepareRequest()
-    request = session.query(requestData).filter_by(id = id)
+    try:
+        request = session.query(requestData).filter_by(id = id).one()
+    except Exception as err:
+        print err.message
+        return "No such request exists!!"
     try:
         if new_meal_time is not None:
             request.update({"meal_time": new_meal_time})
@@ -103,5 +107,5 @@ def modifyRequest(id):
     except Exception as err:
         session.rollback
         print err.message
-    request = session.query(requestData).filter_by(id = id)
-    return jsonify(RequestDetails=[i.serialize for i in request])
+    request = session.query(requestData).filter_by(id = id).one()
+    return jsonify(RequestDetails=[request.serialize])
