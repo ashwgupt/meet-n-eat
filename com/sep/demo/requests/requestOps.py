@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from models import Base, requestData
 from com.sep.demo.users.usersOps import extractUserId
 from com.sep.demo.clients.geocode import getGeocodeLocation
+from com.sep.demo.utils.responseCode import returnStatus
 
 engine = create_engine('sqlite:///requests/Request.db')
 Base.metadata.bind = engine
@@ -38,8 +39,8 @@ def prepareRequest():
                 latitude, longitude = getGeocodeLocation(location)
             return mealTime, mealType, longitude, latitude, location, userId
     except TypeError as err:
-        return "Mandatory fields missing or Incorrect datatype passed " \
-               "All fields - MealType, MealTime, Location and EmailId must be String"
+        return returnStatus("Mandatory fields missing or Incorrect datatype passed " \
+               "All fields - MealType, MealTime, Location and EmailId must be String")
 
 def createRequest():
     meal_time, meal_type, longitude, latitude, location_string, userId = prepareRequest()
@@ -51,14 +52,15 @@ def createRequest():
     except ValueError as err:
         session.rollback()
         print err.message
-        return "Malformed Input!!"
-    except exc.IntegrityError:
+        return returnStatus("Malformed Input!!")
+    except exc.IntegrityError as err:
+        print err.message
         session.rollback()
-        return "Missing required field"
+        return returnStatus("Missing required field")
     except Exception as err:
         session.rollback()
         print err.message
-        return "Something went wrong, we also dont know!!"
+        return returnStatus("Something went wrong, we also dont know!!")
 
 def getRequest():
     request = session.query(requestData).all()
@@ -78,16 +80,16 @@ def getRequestId(id):
         return jsonify(RequestDetails=[request.serialize])
     except Exception:
         session.rollback()
-        return "No such request exists!!"
+        return returnStatus("No such request exist!!")
 
 def deleteRequest(id):
    try:
        requests = session.query(requestData).filter_by(id=id).one()
    except Exception:
          session.rollback()
-         return "No such request exists!!"
+         return returnStatus("No such request exist!!")
    session.delete(requests)
-   return "Delete!!"
+   return returnStatus("Request deleted!!")
 
 def modifyRequest(id):
     new_meal_time, new_meal_type, new_longitude, new_latitude, new_location_string, new_userId = prepareRequest()
@@ -95,7 +97,7 @@ def modifyRequest(id):
         request = session.query(requestData).filter_by(id = id).one()
     except Exception as err:
         print err.message
-        return "No such request exists!!"
+        return returnStatus("No such request exist!!")
     try:
         if new_meal_time is not None:
             request.update({"meal_time": new_meal_time})

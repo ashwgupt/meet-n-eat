@@ -5,6 +5,8 @@ from sqlalchemy import create_engine, exc, exists
 from sqlalchemy.orm import sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import Base,userData
+from com.sep.demo.utils.responseCode import returnStatus
+
 
 engine = create_engine('sqlite:///users/Users.db')
 Base.metadata.bind = engine
@@ -35,8 +37,9 @@ def userFunction():
             print "%s", password_hash
             return makeANewUser(name, email, password_hash)
     except TypeError as err:
-        return "Mandatory fields missing or Incorrect datatype passed " \
-              "All fields - Name, Email, Password must be String"
+        print err.message
+        return returnStatus("Mandatory fields missing or Incorrect datatype passed " \
+              "All fields - Name, Email, Password must be String")
 
 
 def loginUser():
@@ -64,27 +67,27 @@ def makeANewUser(name,email,passwords):
   except exc.IntegrityError as err:
       session.rollback()
       print err.message
-      return "User Id already registered!!"
+      return returnStatus("User Id already registered!!")
   except ValueError as err:
       session.rollback()
       print err.message
-      return "Malformed Input!!"
+      return returnStatus("Malformed Input!!")
   except Exception as err:
       session.rollback()
       err.message
-      return "Something went wrong, we also dont know!!"
+      return returnStatus("Something went wrong, we also dont know!!")
 
 def validateUser(_email, passwords):
     try:
         User = session.query(userData).filter_by(email=_email).one()
     except Exception:
         session.rollback()
-        return "No such user exists!!"
+        return returnStatus("No such user exists!!")
     _flag = check_password_hash(User.password_hash,passwords)
     if True == _flag:
-        return "Login successfull"
+        return returnStatus("Login successfull")
     elif True != _flag:
-        return "Login failed"
+        return returnStatus("Login failed")
 
 def extractUserId(_email):
     User = session.query(userData).filter_by(email=_email).one()
@@ -103,17 +106,17 @@ def deleteUser(_id):
         User = session.query(userData).filter_by(id=_id).one()
     except Exception:
         session.rollback()
-        return "No such user exists!!"
+        return returnStatus("No such user exists!!")
     session.delete(User)
     session.commit()
-    return "User deleted!!"
+    return returnStatus("User deleted!!")
 
 def modifyUser(id):
     try:
         user = session.query(userData).filter_by(id = id).one()
     except Exception as err:
         print err.message
-        return "No such user exists!!"
+        return returnStatus("No such user exists!!")
     rdata = request.data
     rawdata = json.loads(rdata)
     jsonData = rawdata["UserDetails"]
@@ -137,4 +140,4 @@ def getUser(id):
         return jsonify(UserDetails=[user.serialize])
     except Exception as err:
         print err.message
-        return "No such user exists!!"
+        return returnStatus("No such user exists!!")
