@@ -83,10 +83,8 @@ def validateUser(_email, passwords):
         session.rollback()
         return returnStatus("No such user exists!!")
     _flag = check_password_hash(User.password_hash,passwords)
-    if True == _flag:
-        return returnStatus("Login successfull")
-    elif True != _flag:
-        return returnStatus("Login failed")
+    print _flag
+    return _flag
 
 def extractUserId(_email):
     User = session.query(userData).filter_by(email=_email).one()
@@ -96,7 +94,10 @@ def userId(id):
     if request.method == 'GET':
          return getUser(id)
     elif request.method == 'PUT':
-         return modifyUser(id)
+        if loginUser(modifyUser(id)):
+            return modifyUser(id)
+        else:
+            return returnStatus("Invalid Creds!!")
     elif request.method == 'DELETE':
         return deleteUser(id)
 
@@ -121,11 +122,11 @@ def modifyUser(id):
     jsonData = rawdata["UserDetails"]
 
     for item in jsonData:
-        password = item.get("password")
+        password = item.get("newpassword")
     try:
         if password is not None:
             password_hash = generate_password_hash(password)
-            user.update({"password_hash": password_hash})
+            user.password_hash = password_hash
         session.commit()
     except Exception as err:
         session.rollback
