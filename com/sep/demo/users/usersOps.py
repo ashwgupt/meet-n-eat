@@ -43,16 +43,15 @@ def userFunction():
 
 
 def loginUser():
-    if request.method == 'POST':
-        rdata = request.data
-        rawdata = json.loads(rdata)
-        jsonData = rawdata["UserDetails"]
+    rdata = request.data
+    rawdata = json.loads(rdata)
+    jsonData = rawdata["UserDetails"]
 
-        for item in jsonData:
-            email = item.get("email")
-            passwords = item.get("password")
+    for item in jsonData:
+        email = item.get("email")
+        passwords = item.get("password")
 
-        return validateUser(email, passwords)
+    return validateUser(email, passwords)
 
 def getAllUsers():
   user = session.query(userData).all()

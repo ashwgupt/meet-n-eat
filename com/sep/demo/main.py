@@ -14,11 +14,6 @@ def users():
 def modifyUsers(id):
     return usersOps.userId(id)
 
-
-@app.route("/api/v1/login", methods = ['GET', 'POST'])
-def login():
-    return usersOps.loginUser()
-
 @app.route("/api/v1/requests", methods = ['GET', 'POST'])
 def request():
     return requestOps.requestFunc()
