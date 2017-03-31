@@ -16,6 +16,7 @@ session = DBSession()
 
 app = Flask(__name__)
 
+
 def userFunction():
   if request.method == 'GET':
     return getAllUsers()
@@ -42,20 +43,22 @@ def userFunction():
               "All fields - Name, Email, Password must be String")
 
 
-def loginUser():
-    rdata = request.data
-    rawdata = json.loads(rdata)
-    jsonData = rawdata["UserDetails"]
+# def loginUser():
+#     rdata = request.data
+#     rawdata = json.loads(rdata)
+#     jsonData = rawdata["UserDetails"]
+#
+#     for item in jsonData:
+#         email = item.get("email")
+#         passwords = item.get("password")
+#
+#     return validateUser(email, passwords)
 
-    for item in jsonData:
-        email = item.get("email")
-        passwords = item.get("password")
-
-    return validateUser(email, passwords)
 
 def getAllUsers():
   user = session.query(userData).all()
   return jsonify(UserDetails=[i.serialize for i in user])
+
 
 def makeANewUser(name,email,passwords):
   newUser = userData(name = name, email=email, password_hash=passwords)
@@ -76,30 +79,31 @@ def makeANewUser(name,email,passwords):
       err.message
       return returnStatus("Something went wrong, we also dont know!!")
 
+
 def validateUser(_email, passwords):
+    flag = False
     try:
         User = session.query(userData).filter_by(email=_email).one()
     except Exception:
         session.rollback()
-        return returnStatus("No such user exists!!")
-    _flag = check_password_hash(User.password_hash,passwords)
-    print _flag
-    return _flag
+        return False
+    flag = check_password_hash(User.password_hash,passwords)
+    return flag
+
 
 def extractUserId(_email):
     User = session.query(userData).filter_by(email=_email).one()
     return User.id
 
+
 def userId(id):
     if request.method == 'GET':
          return getUser(id)
     elif request.method == 'PUT':
-        if loginUser(modifyUser(id)):
-            return modifyUser(id)
-        else:
-            return returnStatus("Invalid Creds!!")
+        return modifyUser(id)
     elif request.method == 'DELETE':
         return deleteUser(id)
+
 
 def deleteUser(_id):
     try:
@@ -110,6 +114,7 @@ def deleteUser(_id):
     session.delete(User)
     session.commit()
     return returnStatus("User deleted!!")
+
 
 def modifyUser(id):
     try:
@@ -133,6 +138,7 @@ def modifyUser(id):
         print err.message
     user = session.query(userData).filter_by(id = id).one()
     return jsonify(UserDetails=[user.serialize])
+
 
 def getUser(id):
     try:

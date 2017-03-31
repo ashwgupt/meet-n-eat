@@ -1,26 +1,43 @@
 from flask import Flask
 from users import usersOps
 from requests import requestOps
+from flask_httpauth import HTTPBasicAuth
 
+auth = HTTPBasicAuth()
 app = Flask(__name__)
 
 
-
-@app.route("/api/v1/users", methods = ['GET', 'POST'])
+@app.route("/api/v1/users", methods = ['POST', 'GET'])
 def users():
     return usersOps.userFunction()
 
+# TODO: Secure GET method for users
+# @app.route("/api/v1/users/", methods = ['GET'])
+# @auth.login_required
+# def users():
+#     return usersOps.userFunction()
+
+
 @app.route("/api/v1/users/<int:id>", methods = ['GET', 'PUT', 'DELETE'])
+@auth.login_required
 def modifyUsers(id):
     return usersOps.userId(id)
 
+
 @app.route("/api/v1/requests", methods = ['GET', 'POST'])
+@auth.login_required
 def request():
     return requestOps.requestFunc()
 
 @app.route("/api/v1/requests/<int:id>", methods = ['GET', 'PUT', 'DELETE'])
+@auth.login_required
 def requestId(id):
     return requestOps.RequestId(id)
+
+
+@auth.verify_password
+def verify_password(username, password):
+    return usersOps.validateUser(username,password)
 
 if __name__ == '__main__':
     app.debug = False
