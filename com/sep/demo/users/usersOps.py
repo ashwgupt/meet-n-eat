@@ -43,18 +43,6 @@ def userFunction():
               "All fields - Name, Email, Password must be String")
 
 
-# def loginUser():
-#     rdata = request.data
-#     rawdata = json.loads(rdata)
-#     jsonData = rawdata["UserDetails"]
-#
-#     for item in jsonData:
-#         email = item.get("email")
-#         passwords = item.get("password")
-#
-#     return validateUser(email, passwords)
-
-
 def getAllUsers():
   user = session.query(userData).all()
   return jsonify(UserDetails=[i.serialize for i in user])
@@ -96,7 +84,15 @@ def extractUserId(_email):
     return User.id
 
 
-def userId(id):
+def userId(id,emailId):
+    userId = extractUserId(emailId)
+    try:
+        user = session.query(userData).filter_by(id=id).one()
+        if not (isUserAuthorized(user.id, userId)):
+            return returnStatus("Not authorized to perform this operation!!")
+    except Exception:
+        session.rollback()
+        return returnStatus("No such user exists!!")
     if request.method == 'GET':
          return getUser(id)
     elif request.method == 'PUT':
@@ -107,11 +103,11 @@ def userId(id):
 
 def deleteUser(_id):
     try:
-        User = session.query(userData).filter_by(id=_id).one()
+        user = session.query(userData).filter_by(id=_id).one()
     except Exception:
         session.rollback()
         return returnStatus("No such user exists!!")
-    session.delete(User)
+    session.delete(user)
     session.commit()
     return returnStatus("User deleted!!")
 
@@ -147,3 +143,10 @@ def getUser(id):
     except Exception as err:
         print err.message
         return returnStatus("No such user exists!!")
+
+
+def isUserAuthorized(allowed_id, passed_id):
+    if int(allowed_id)==passed_id:
+        return True
+    else:
+        return False

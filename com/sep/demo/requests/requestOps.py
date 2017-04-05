@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import sessionmaker
 from models import Base, requestData
-from com.sep.demo.users.usersOps import extractUserId
+from com.sep.demo.users.usersOps import extractUserId,isUserAuthorized
 from com.sep.demo.clients.geocode import getGeocodeLocation
 from com.sep.demo.utils.responseCode import returnStatus
 
@@ -14,23 +14,21 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-def requestFunc():
+def requestFunc(email):
     if request.method == 'GET':
         return getRequest()
     elif request.method == 'POST':
-        return createRequest()
+        return createRequest(email)
 
-def prepareRequest():
+def prepareRequest(emailId):
     rdata = request.data
     rawdata = json.loads(rdata)
     jsonData = rawdata["RequestDetails"]
-
     try:
         for item in jsonData:
             mealType = item.get("mealType")
             mealTime = item.get("mealTime")
             location = item.get("location")
-            emailId = item.get("emailId")
 
             userId = extractUserId(emailId)
             latitude = None
@@ -42,8 +40,8 @@ def prepareRequest():
         return returnStatus("Mandatory fields missing or Incorrect datatype passed " \
                "All fields - MealType, MealTime, Location and EmailId must be String")
 
-def createRequest():
-    meal_time, meal_type, longitude, latitude, location_string, userId = prepareRequest()
+def createRequest(email):
+    meal_time, meal_type, longitude, latitude, location_string, userId = prepareRequest(email)
     newRequest = requestData(meal_time = meal_time, meal_type = meal_type, longitude = longitude, latitude = latitude, location_string = location_string, user_id = userId)
     try:
         session.add(newRequest)
@@ -66,13 +64,13 @@ def getRequest():
     request = session.query(requestData).all()
     return jsonify(RequestDetails=[i.serialize for i in request])
 
-def RequestId(id):
+def RequestId(id,emailId):
     if request.method == 'GET':
          return getRequestId(id)
     elif request.method == 'PUT':
-        return modifyRequest(id)
+        return modifyRequest(id,emailId)
     elif request.method == 'DELETE':
-        return deleteRequest(id)
+        return deleteRequest(id,emailId)
 
 def getRequestId(id):
     try:
@@ -82,32 +80,40 @@ def getRequestId(id):
         session.rollback()
         return returnStatus("No such request exist!!")
 
-def deleteRequest(id):
+def deleteRequest(id,emailId):
+   userId = extractUserId(emailId)
    try:
        requests = session.query(requestData).filter_by(id=id).one()
+       if not (isUserAuthorized(requests.user_id, userId)):
+           return returnStatus("Not authorized to perform this operation!!")
    except Exception:
          session.rollback()
          return returnStatus("No such request exist!!")
    session.delete(requests)
    return returnStatus("Request deleted!!")
 
-def modifyRequest(id):
-    new_meal_time, new_meal_type, new_longitude, new_latitude, new_location_string, new_userId = prepareRequest()
+def modifyRequest(id,emailId):
+    new_meal_time, new_meal_type, new_longitude, new_latitude, new_location_string, userId = prepareRequest(emailId)
     try:
         request = session.query(requestData).filter_by(id = id).one()
+        if not (isUserAuthorized(request.user_id, userId)):
+            return returnStatus("Not authorized to perform this operation!!")
     except Exception as err:
         print err.message
         return returnStatus("No such request exist!!")
     try:
         if new_meal_time is not None:
-            request.update({"meal_time": new_meal_time})
+            request.meal_time = new_meal_time
         if new_meal_type is not None:
-            request.update({"meal_type": new_meal_type})
+            request.meal_type = new_meal_type
         if new_location_string is not None:
-            request.update({"location_string": new_location_string,"longitude": new_longitude,"latitude": new_latitude})
+            request.location_string = new_location_string
+            request.latitude = new_latitude
+            request.longitude = new_longitude
         session.commit()
     except Exception as err:
         session.rollback
         print err.message
     request = session.query(requestData).filter_by(id = id).one()
     return jsonify(RequestDetails=[request.serialize])
+
