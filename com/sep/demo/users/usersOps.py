@@ -84,6 +84,11 @@ def extractUserId(_email):
     return User.id
 
 
+def extractUserName(id):
+    User = session.query(userData).filter_by(id=id).one()
+    return User.name
+
+
 def userId(id,emailId):
     userId = extractUserId(emailId)
     try:
@@ -100,7 +105,7 @@ def userId(id,emailId):
     elif request.method == 'DELETE':
         return deleteUser(id)
 
-
+##TODO To delete requests/proposals for the user
 def deleteUser(_id):
     try:
         user = session.query(userData).filter_by(id=_id).one()

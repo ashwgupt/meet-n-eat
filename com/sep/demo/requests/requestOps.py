@@ -117,3 +117,7 @@ def modifyRequest(id,emailId):
     request = session.query(requestData).filter_by(id = id).one()
     return jsonify(RequestDetails=[request.serialize])
 
+def extractUser(id):
+    request = session.query(requestData).filter_by(id=id).one()
+    return request.user_id
+

@@ -1,6 +1,7 @@
 from flask import Flask
 from users import usersOps
 from requests import requestOps
+from proposals import proposalOps
 from flask_httpauth import HTTPBasicAuth
 
 auth = HTTPBasicAuth()
@@ -32,6 +33,11 @@ def request():
 @auth.login_required
 def requestId(id):
     return requestOps.RequestId(id,this_user)
+
+@app.route("/api/v1/proposals", methods = ['GET', 'POST'])
+@auth.login_required
+def proposalsRequest():
+    return proposalOps.proposalFunc(this_user)
 
 
 @auth.verify_password
