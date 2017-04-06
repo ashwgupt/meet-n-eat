@@ -74,7 +74,7 @@ def validateUser(_email, passwords):
         User = session.query(userData).filter_by(email=_email).one()
     except Exception:
         session.rollback()
-        return False
+        return flag
     flag = check_password_hash(User.password_hash,passwords)
     return flag
 
