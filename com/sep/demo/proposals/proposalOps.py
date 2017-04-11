@@ -1,7 +1,7 @@
 import json
 
 from flask import Flask, request, jsonify
-from sqlalchemy import create_engine, exc
+from sqlalchemy import create_engine, exc, or_
 from sqlalchemy.orm import sessionmaker
 from models import Base, proposalData
 from com.sep.demo.users.usersOps import extractUserId,isUserAuthorized,extractUserName
@@ -16,7 +16,7 @@ session = DBSession()
 
 def proposalFunc(email):
     if request.method == 'GET':
-        return True
+        return getProposols(email)
     elif request.method == 'POST':
         return createProposal(email)
 
@@ -56,3 +56,15 @@ def createProposal(email):
             session.rollback()
             print err.message
             return returnStatus("Something went wrong, we also dont know!!")
+
+def getProposols(email):
+    userProposedFrom = extractUserName(extractUserId(email))
+    try:
+        proposal = session.query(proposalData)\
+            .filter((proposalData.user_proposed_from == userProposedFrom) 
+                    | (proposalData.user_proposed_to == userProposedFrom))
+    except Exception as err:
+        session.rollback()
+        print err.message
+        return returnStatus("Something went wrong, we also dont know!!")
+    return jsonify(ProposalDetails=[i.serialize for i in proposal])
