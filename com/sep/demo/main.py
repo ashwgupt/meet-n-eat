@@ -39,6 +39,10 @@ def requestId(id):
 def proposalsRequest():
     return proposalOps.proposalFunc(this_user)
 
+@app.route("/api/v1/proposals/<int:id>", methods = ['GET'])
+@auth.login_required
+def proposalsRequestId(id):
+    return proposalOps.proposalFuncId(id,this_user)
 
 @auth.verify_password
 def verify_password(username, password):

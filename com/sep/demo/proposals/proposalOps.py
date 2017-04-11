@@ -16,9 +16,14 @@ session = DBSession()
 
 def proposalFunc(email):
     if request.method == 'GET':
-        return getProposols(email)
+        return getProposals(email)
     elif request.method == 'POST':
         return createProposal(email)
+
+def proposalFuncId(id,email):
+    if request.method == 'GET':
+        return getProposal(id,email)
+
 
 def createProposal(email):
     rdata = request.data
@@ -57,12 +62,33 @@ def createProposal(email):
             print err.message
             return returnStatus("Something went wrong, we also dont know!!")
 
-def getProposols(email):
+def getProposals(email):
     userProposedFrom = extractUserName(extractUserId(email))
     try:
         proposal = session.query(proposalData)\
-            .filter((proposalData.user_proposed_from == userProposedFrom) 
+            .filter((proposalData.user_proposed_from == userProposedFrom)
                     | (proposalData.user_proposed_to == userProposedFrom))
+        if proposal.count() == 0:
+            return returnStatus("No matching proposals found for you!!")
+    except Exception as err:
+        session.rollback()
+        print err.message
+        return returnStatus("Something went wrong, we also dont know!!")
+    return jsonify(ProposalDetails=[i.serialize for i in proposal])
+
+def getProposal(id,email):
+    userProposedFrom = extractUserName(extractUserId(email))
+    try:
+        proposal = session.query(proposalData).filter_by(id=id)
+        if proposal.count() == 0:
+            msg = "Prosposal with id: "+ str(id) +" not found"
+            return returnStatus(msg)
+        proposal = session.query(proposalData)\
+            .filter_by(id = id)\
+            .filter((proposalData.user_proposed_from == userProposedFrom)
+                    | (proposalData.user_proposed_to == userProposedFrom))
+        if proposal.count() == 0:
+            return returnStatus("Sorry you are not authorised to view the proposal!!")
     except Exception as err:
         session.rollback()
         print err.message
