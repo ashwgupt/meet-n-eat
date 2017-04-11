@@ -1,8 +1,22 @@
 ## Idea file
 .idea
 
-## DB File
-requestOps.pyc
-models.pyc
-Requests.db
-Users.db
+## DB and Compiled Python File
+com/sep/demo/main.pyc
+com/sep/demo/__init__.pyc
+com/sep/demo/requests/requestOps.pyc
+com/sep/demo/requests/models.pyc
+com/sep/demo/requests/__init__.pyc
+com/sep/demo/requests/Request.db
+com/sep/demo/users/Users.db
+com/sep/demo/users/usersOps.pyc
+com/sep/demo/users/models.pyc
+com/sep/demo/users/__init__.pyc
+com/sep/demo/proposals/Proposal.db
+com/sep/demo/proposals/__init__.pyc
+com/sep/demo/proposals/__init__.py
+com/sep/demo/proposals/models.pyc
+com/sep/demo/clients/__init__.pyc
+com/sep/demo/clients/geocode.pyc
+com/sep/demo/utils/__init__.pyc
+com/sep/demo/utils/responseCode.pyc
