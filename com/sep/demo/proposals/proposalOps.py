@@ -23,6 +23,8 @@ def proposalFunc(email):
 def proposalFuncId(id,email):
     if request.method == 'GET':
         return getProposal(id,email)
+    elif request.method == 'DELETE':
+        return deleteProposal(id,email)
 
 
 def createProposal(email):
@@ -94,3 +96,23 @@ def getProposal(id,email):
         print err.message
         return returnStatus("Something went wrong, we also dont know!!")
     return jsonify(ProposalDetails=[i.serialize for i in proposal])
+
+def deleteProposal(id,email):
+    userProposedFrom = extractUserName(extractUserId(email))
+    try:
+        proposal = session.query(proposalData).filter_by(id=id)
+        if proposal.count() == 0:
+            msg = "Prosposal with id: " + str(id) + " not found"
+            return returnStatus(msg)
+        proposal = session.query(proposalData) \
+            .filter_by(id=id) \
+            .filter_by(user_proposed_from=userProposedFrom)
+        if proposal.count() == 0:
+            return returnStatus("Sorry you are not authorised to delete the proposal!!")
+        session.delete(proposal.one())
+        session.commit()
+    except Exception as err:
+        session.rollback()
+        print err.message
+        return returnStatus("Something went wrong, we also dont know!!")
+    return returnStatus("Proposal deleted successfully!!")

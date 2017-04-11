@@ -39,7 +39,7 @@ def requestId(id):
 def proposalsRequest():
     return proposalOps.proposalFunc(this_user)
 
-@app.route("/api/v1/proposals/<int:id>", methods = ['GET'])
+@app.route("/api/v1/proposals/<int:id>", methods = ['GET', 'DELETE'])
 @auth.login_required
 def proposalsRequestId(id):
     return proposalOps.proposalFuncId(id,this_user)
