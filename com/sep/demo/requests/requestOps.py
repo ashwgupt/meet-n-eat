@@ -1,6 +1,6 @@
 import json
 
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import sessionmaker
 from models import Base, requestData
@@ -120,4 +120,15 @@ def modifyRequest(id,emailId):
 def extractUser(id):
     request = session.query(requestData).filter_by(id=id).one()
     return request.user_id
+
+def acceptRequest(id):
+    try:
+        request = session.query(requestData).filter_by(id=id).one()
+        request.filled = True
+        session.commit()
+    except Exception as err:
+        session.rollback()
+        print err.message()
+        return returnStatus("We dont know dude!!")
+
 

@@ -1,11 +1,11 @@
 import json
 
 from flask import Flask, request, jsonify
-from sqlalchemy import create_engine, exc, or_
+from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import sessionmaker
 from models import Base, proposalData
-from com.sep.demo.users.usersOps import extractUserId,isUserAuthorized,extractUserName
-from com.sep.demo.requests.requestOps import extractUser
+from com.sep.demo.users.usersOps import extractUserId,extractUserName
+from com.sep.demo.requests.requestOps import extractUser, acceptRequest
 from com.sep.demo.utils.responseCode import returnStatus
 
 engine = create_engine('sqlite:///proposals/Proposal.db')
@@ -25,6 +25,8 @@ def proposalFuncId(id,email):
         return getProposal(id,email)
     elif request.method == 'DELETE':
         return deleteProposal(id,email)
+    elif request.method == 'PUT':
+        return modifyProposal(id,email)
 
 
 def createProposal(email):
@@ -116,3 +118,24 @@ def deleteProposal(id,email):
         print err.message
         return returnStatus("Something went wrong, we also dont know!!")
     return returnStatus("Proposal deleted successfully!!")
+
+def modifyProposal(id,email):
+    userProposedTo = extractUserName(extractUserId(email))
+    try:
+        proposal = session.query(proposalData).filter_by(id=id)
+        if proposal.count() == 0:
+            msg = "Prosposal with id: " + str(id) + " not found"
+            return returnStatus(msg)
+        proposal = session.query(proposalData) \
+            .filter_by(id=id) \
+            .filter_by(user_proposed_to=userProposedTo)
+        if proposal.count() == 0:
+            return returnStatus("Sorry you are not authorised to modify the proposal!!")
+        proposal.one().filled = True
+        session.commit()
+    except Exception as err:
+        session.rollback()
+        print err.message
+        return returnStatus("Something went wrong, we also dont know!!")
+    acceptRequest(proposal.one().request_id)
+    return returnStatus("Proposal accepted successfully!!")
