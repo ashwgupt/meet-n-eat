@@ -14,7 +14,7 @@ com/sep/demo/users/models.pyc
 com/sep/demo/users/__init__.pyc
 com/sep/demo/proposals/Proposal.db
 com/sep/demo/proposals/__init__.pyc
-com/sep/demo/proposals/__init__.py
+com/sep/demo/proposals/proposalOps.pyc
 com/sep/demo/proposals/models.pyc
 com/sep/demo/clients/__init__.pyc
 com/sep/demo/clients/geocode.pyc
