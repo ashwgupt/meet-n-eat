@@ -2,6 +2,8 @@
 .idea
 
 ## DB and Compiled Python File
+com/__init__.pyc
+com/sep/__init__.pyc
 com/sep/demo/main.pyc
 com/sep/demo/__init__.pyc
 com/sep/demo/requests/requestOps.pyc
