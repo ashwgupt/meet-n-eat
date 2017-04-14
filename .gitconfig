@@ -1,0 +1,10 @@
+[push]
+	default = simple
+[alias]
+	br = branch
+	ci = duet-commit
+	co = checkout
+	h = log --pretty=format:'%Cblue%h%Creset %C(yellow)%d%Creset %s %Cgreen%cr, %an' --abbrev-commit --date=relative --graph
+	st = status
+[http]
+	sslVerify = false
