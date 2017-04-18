@@ -53,7 +53,7 @@ def makeANewUser(name,email,passwords):
   try:
       session.add(newUser)
       session.commit()
-      return jsonify(userData=newUser.serialize)
+      return returnStatus("User registered!!")
   except exc.IntegrityError as err:
       session.rollback()
       print err.message
@@ -138,7 +138,7 @@ def modifyUser(id):
         session.rollback
         print err.message
     user = session.query(userData).filter_by(id = id).one()
-    return jsonify(UserDetails=[user.serialize])
+    return returnStatus("User modified!!")
 
 
 def getUser(id):

@@ -46,7 +46,7 @@ def createRequest(email):
     try:
         session.add(newRequest)
         session.commit()
-        return jsonify(requestData=newRequest.serialize)
+        return returnStatus("Request created!!")
     except ValueError as err:
         session.rollback()
         print err.message
@@ -114,8 +114,7 @@ def modifyRequest(id,emailId):
     except Exception as err:
         session.rollback
         print err.message
-    request = session.query(requestData).filter_by(id = id).one()
-    return jsonify(RequestDetails=[request.serialize])
+    return returnStatus("Request modified!!")
 
 def extractUser(id):
     request = session.query(requestData).filter_by(id=id).one()

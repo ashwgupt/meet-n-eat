@@ -52,7 +52,7 @@ def createProposal(email):
         try:
             session.add(newProposal)
             session.commit()
-            return jsonify(proposalData=newProposal.serialize)
+            return returnStatus("Proposal created!!")
         except ValueError as err:
             session.rollback()
             print err.message
