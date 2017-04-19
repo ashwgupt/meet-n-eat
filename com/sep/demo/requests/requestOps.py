@@ -117,8 +117,12 @@ def modifyRequest(id,emailId):
     return returnStatus("Request modified!!")
 
 def extractUser(id):
-    request = session.query(requestData).filter_by(id=id).one()
-    return request.user_id
+    try:
+        request = session.query(requestData).filter_by(id=id).one()
+        return request.user_id
+    except Exception as err:
+        print err.message()
+        return returnStatus("No such user exist!!")
 
 def acceptRequest(id):
     try:
