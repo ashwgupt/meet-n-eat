@@ -54,7 +54,7 @@ Below is the list of operations available, and the API endpoints and correspondi
 
 #### Users Creation
 
-**API** : /api/v1/users
+**API** : `/api/v1/users`
 
 **HTTP Method** : POST
 
@@ -86,7 +86,7 @@ Below is the list of operations available, and the API endpoints and correspondi
 
 #### Users Retrieval
 
-**API** : /api/v1/users
+**API** : `/api/v1/users`
 
 **HTTP Method** : GET
 
@@ -126,7 +126,7 @@ Below is the list of operations available, and the API endpoints and correspondi
 
 #### User Modification
 
-**API** : /api/v1/users/<int:id>
+**API** : `/api/v1/users/<int:id>`
 
 **HTTP Method** : PUT
 
@@ -156,7 +156,7 @@ Below is the list of operations available, and the API endpoints and correspondi
 
 #### User Deletion
 
-**API** : /api/v1/users/<int:id>
+**API** : `/api/v1/users/<int:id>`
 
 **HTTP Method** : DELETE
 
