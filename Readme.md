@@ -64,16 +64,17 @@ Below is the list of operations available, and the API endpoints and correspondi
 ```json
 {
 	"UserDetails": [{
-		"name": "Ashwin",
-		"email": "ashwin.gupta@abc.com",
-		"password": "password"
+		"name": "Ashwin", <STRING, MANDATORY>
+		"email": "ashwin.gupta@abc.com", <STRING, MANDATORY>
+		"password": "password" <STRING, MANDATORY>
 	}]
 }
 ```
 
 **Response** :
 
-* HTTP Status : OK - 200
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
 * Body : 
 ```json
 {
@@ -97,7 +98,8 @@ Below is the list of operations available, and the API endpoints and correspondi
 **Response** :
 
 ***success***
-* HTTP Status : OK - 200
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
 * Body : 
 ```json
 {
@@ -106,14 +108,15 @@ Below is the list of operations available, and the API endpoints and correspondi
         "id": 1,
         "name": "Ashwin"
     }, {
-        "email": "rish.imadan@abc.com",
+        "email": "rishi.madan@abc.com",
         "id": 2,
         "name": "Rishi"
     }]
 }
 ```
 ***failure***
-* HTTP Status : OK - 200
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
 * Body : 
 ```json
 {
@@ -136,14 +139,15 @@ Below is the list of operations available, and the API endpoints and correspondi
 ```json
 {
 	"UserDetails": [{
-		"newpassword": "newpassword"
+		"newpassword": "newpassword" <STRING, MANDATORY>
 	}]
 }
 ```
 
 **Response** :
 
-* HTTP Status : OK - 200
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
 * Body : 
 ```json
 {
@@ -166,7 +170,127 @@ Below is the list of operations available, and the API endpoints and correspondi
 
 **Response** :
 
-* HTTP Status : OK - 200
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+        "responseCode": "api response code",
+        "responseMessage": "message text"
+    }]
+}
+
+#### Proposal Creation
+
+**API** : `/api/v1/proposals`
+
+**HTTP Method** : POST
+
+**Security** : BASIC_AUTH
+
+**Request Body** : 
+```json
+{
+	"ProposalDetails": [{
+		"requestId": 5 <INT, MANDATORY>
+	}]
+}
+```
+
+**Response** :
+
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+        "responseCode": "api response code",
+        "responseMessage": "message text"
+    }]
+}
+```
+
+#### Proposals Retrieval
+
+**API** : `/api/v1/proposals`
+
+**HTTP Method** : GET
+
+**Security** : BASIC_AUTH
+
+**Request Body** : None
+
+**Response** :
+
+***success***
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "RequestDetails": [{
+        "filled": false,
+        "id": 1,
+        "location_string": "Gurgaon, Haryana, India",
+        "meal_time": "Dinner",
+        "meal_type": "Italian",
+        "user_id": "2"
+    }]
+}
+```
+***failure***
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+        "responseCode": "api response code",
+        "responseMessage": "message text"
+    }]
+}
+```
+
+#### Proposal Modification
+
+**API** : `/api/v1/proposals/<int:id>`
+
+**HTTP Method** : PUT
+
+**Security** : BASIC_AUTH
+
+**Request Body** : None
+
+**Response** :
+
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+        "responseCode": "api response code",
+        "responseMessage": "message text"
+    }]
+}
+```
+
+#### Proposal Deletion
+
+**API** : `/api/v1/proposals/<int:id>`
+
+**HTTP Method** : DELETE
+
+**Security** : BASIC_AUTH
+
+**Request Body** : None
+
+**Response** :
+
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases) (For all rest cases)
 * Body : 
 ```json
 {
