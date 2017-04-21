@@ -1,12 +1,13 @@
 import json
 
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import sessionmaker
+
 from models import Base, proposalData
-from com.sep.demo.users.usersOps import extractUserId,extractUserName
-from com.sep.demo.requests.requestOps import extractUser, acceptRequest
-from com.sep.demo.utils.responseCode import returnStatus
+from src.com.sep.demo.requests.requestOps import extractUser, acceptRequest
+from src.com.sep.demo.users.usersOps import extractUserId, extractUserName
+from src.com.sep.demo.utils.responseCode import returnStatus
 
 engine = create_engine('sqlite:///proposals/Proposal.db')
 Base.metadata.bind = engine
