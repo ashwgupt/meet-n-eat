@@ -84,6 +84,7 @@ Below is the list of operations available, and the API endpoints and correspondi
     }]
 }
 ```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
 
 #### Users Retrieval
 
@@ -98,7 +99,6 @@ Below is the list of operations available, and the API endpoints and correspondi
 **Response** :
 
 ***success***
-* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
 * HTTP Status : OK - 200 (For all rest cases)
 * Body : 
 ```json
@@ -126,6 +126,45 @@ Below is the list of operations available, and the API endpoints and correspondi
     }]
 }
 ```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
+
+#### User Retrieval
+
+**API** : `/api/v1/users/<int:id>`
+
+**HTTP Method** : GET
+
+**Security** : BASIC_AUTH
+
+**Request Body** : None
+
+**Response** :
+
+***success***
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "UserDetails": [{
+        "email": "ashwin.gupta@abc.com",
+        "id": 1,
+        "name": "Ashwin"
+    }]
+}
+```
+***failure***
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+        "responseCode": "api response code",
+        "responseMessage": "message text"
+    }]
+}
+```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
 
 #### User Modification
 
@@ -157,6 +196,7 @@ Below is the list of operations available, and the API endpoints and correspondi
     }]
 }
 ```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
 
 #### User Deletion
 
@@ -180,6 +220,194 @@ Below is the list of operations available, and the API endpoints and correspondi
         "responseMessage": "message text"
     }]
 }
+
+#### Requests Creation
+
+**API** : `/api/v1/requests`
+
+**HTTP Method** : POST
+
+**Security** : BASIC_AUTH
+
+**Request Body** : 
+```json
+{
+	"requestDetails": [{
+		"meanType": "Italian", <STRING, MANDATORY>
+		"mealTime: "Dinner", <STRING, MANDATORY>
+		"location": "Lag Vegas, Naveda" <STRING, MANDATORY>
+	}]
+}
+```
+
+**Response** :
+
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+        "responseCode": "api response code",
+        "responseMessage": "message text"
+    }]
+}
+```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
+
+#### Requests Retrieval
+
+**API** : `/api/v1/requests`
+
+**HTTP Method** : GET
+
+**Security** : BASIC_AUTH
+
+**Request Body** : None
+
+**Response** :
+
+***success***
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "requestDetails": [{
+        "mealType": "Italian",
+		"mealTime": "Dinner",
+		"location": "Lag Vegas, Naveda",
+        "id": 1,
+        "user_id": "2",
+        "filled": False
+    }, {
+        "requestDetails": [{
+        "mealType": "Mughlai",
+		"mealTime": "Lunch",
+		"location": "Wesminster, London",
+        "id": 2,
+        "user_id": "1",
+        "filled": True
+    }]
+}
+```
+***failure***
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+        "responseCode": "api response code",
+        "responseMessage": "message text"
+    }]
+}
+```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
+
+#### Request Retrieval
+
+**API** : `/api/v1/requests/<int:id>`
+
+**HTTP Method** : GET
+
+**Security** : BASIC_AUTH
+
+**Request Body** : None
+
+**Response** :
+
+***success***
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "requestDetails": [{
+        "requestDetails": [{
+        "mealType": "Mughlai",
+		"mealTime": "Lunch",
+		"location": "Wesminster, London",
+        "id": 2,
+        "user_id": "1",
+        "filled": True
+    }]
+}
+```
+***failure***
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+        "responseCode": "api response code",
+        "responseMessage": "message text"
+    }]
+}
+```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
+
+#### Request Modification
+
+**API** : `/api/v1/requests/<int:id>`
+
+**HTTP Method** : PUT
+
+**Security** : BASIC_AUTH
+
+**Request Body** : 
+```json
+{
+	"requestDetails": [{
+		"meanType": "Italian", <STRING, MANDATORY>
+		"mealTime: "Lunch", <STRING, MANDATORY>
+		"location": "Lag Vegas, Naveda" <STRING, MANDATORY>
+	}]
+}
+```
+
+**Response** :
+
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+       "mealType": "Italian",
+		"mealTime": "Dinner",
+		"location": "Lag Vegas, Naveda",
+        "id": 1,
+        "user_id": "2",
+        "filled": False
+    }]
+}
+```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
+
+#### Request Deletion
+
+**API** : `/api/v1/requests/<int:id>`
+
+**HTTP Method** : DELETE
+
+**Security** : BASIC_AUTH
+
+**Request Body** : None
+
+**Response** :
+
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+        "responseCode": "api response code",
+        "responseMessage": "message text"
+    }]
+}
+```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
 
 #### Proposal Creation
 
@@ -211,6 +439,7 @@ Below is the list of operations available, and the API endpoints and correspondi
     }]
 }
 ```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
 
 #### Proposals Retrieval
 
@@ -225,18 +454,22 @@ Below is the list of operations available, and the API endpoints and correspondi
 **Response** :
 
 ***success***
-* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
 * HTTP Status : OK - 200 (For all rest cases)
 * Body : 
 ```json
 {
-    "RequestDetails": [{
+    "ProposalDetails": [{
         "filled": false,
         "id": 1,
-        "location_string": "Gurgaon, Haryana, India",
-        "meal_time": "Dinner",
-        "meal_type": "Italian",
-        "user_id": "2"
+        "user_proposed_to": "Jane",
+        "user_proposed_from": "Tarzan",
+        "request_id": 91
+    }, {
+        "filled": true,
+        "id": 1,
+        "user_proposed_to": "Romeo",
+        "user_proposed_from": "Juliet",
+        "request_id": 12
     }]
 }
 ```
@@ -252,6 +485,47 @@ Below is the list of operations available, and the API endpoints and correspondi
     }]
 }
 ```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
+
+#### Proposals Retrieval
+
+**API** : `/api/v1/proposals`
+
+**HTTP Method** : GET
+
+**Security** : BASIC_AUTH
+
+**Request Body** : None
+
+**Response** :
+
+***success***
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ProposalDetails": [{
+        "filled": true,
+        "id": 1,
+        "user_proposed_to": "Romeo",
+        "user_proposed_from": "Juliet",
+        "request_id": 12
+    }]
+}
+```
+***failure***
+* HTTP Status : UNAUTHORIZED - 401 (for case of authN failure)
+* HTTP Status : OK - 200 (For all rest cases)
+* Body : 
+```json
+{
+    "ResponseMessage": [{
+        "responseCode": "api response code",
+        "responseMessage": "message text"
+    }]
+}
+```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
 
 #### Proposal Modification
 
@@ -276,6 +550,7 @@ Below is the list of operations available, and the API endpoints and correspondi
     }]
 }
 ```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
 
 #### Proposal Deletion
 
@@ -299,3 +574,5 @@ Below is the list of operations available, and the API endpoints and correspondi
         "responseMessage": "message text"
     }]
 }
+```
+* HTTP Status : INTERNAL_SERVER_ERROR - 500 (for any other error)
