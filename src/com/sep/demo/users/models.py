@@ -24,5 +24,5 @@ class userData(Base):
         }
 
 
-engine = create_engine('sqlite:///users/Users.db')
+engine = create_engine('sqlite:///../../../../generated/Users.db')
 Base.metadata.create_all(engine)

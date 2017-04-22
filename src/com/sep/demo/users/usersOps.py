@@ -1,21 +1,44 @@
 import json
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, _app_ctx_stack
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import sessionmaker
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash,\
+    check_password_hash
 
 from models import Base, userData
 from src.com.sep.demo.utils.responseCode import returnStatus
 
-engine = create_engine('sqlite:///users/Users.db')
-Base.metadata.bind = engine
-
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+engine = create_engine('sqlite:///../../../../generated/Users.db')
 
 app = Flask(__name__)
 
+
+def get_db():
+    """
+    Opens a new database connection if there is none yet for the
+    current application context.
+    """
+    top = _app_ctx_stack.top
+    if not hasattr(top, 'sqlite_db'):
+        DBSession = sessionmaker(bind=engine)
+        top.sqlite_db = DBSession()
+    return top.sqlite_db
+
+
+@app.cli.command('initdb')
+def initdb_command():
+    """Initialize the database."""
+    Base.metadata.bind = engine
+    print('Initialized the database.')
+
+
+@app.teardown_appcontext
+def close_database(exception):
+    """Closes the database again at the end of the request."""
+    top = _app_ctx_stack.top
+    if hasattr(top, 'sqlite_db'):
+        top.sqlite_db.close()
 
 def userFunction():
   if request.method == 'GET':
@@ -44,12 +67,20 @@ def userFunction():
 
 
 def getAllUsers():
-  user = session.query(userData).all()
-  return jsonify(UserDetails=[i.serialize for i in user])
+    session = get_db()
+    try:
+        user = session.query(userData).all()
+        return jsonify(UserDetails=[i.serialize for i in user])
+    except exc.OperationalError:
+        return returnStatus("The database doesn't exist yet")
+    except Exception as err:
+        print err.message
+        return returnStatus("Database exception occurraed")
 
 
 def makeANewUser(name,email,passwords):
   newUser = userData(name = name, email=email, password_hash=passwords)
+  session = get_db()
   try:
       session.add(newUser)
       session.commit()
@@ -70,6 +101,7 @@ def makeANewUser(name,email,passwords):
 
 def validateUser(_email, passwords):
     flag = False
+    session = get_db()
     try:
         User = session.query(userData).filter_by(email=_email).one()
     except Exception:
@@ -80,17 +112,20 @@ def validateUser(_email, passwords):
 
 
 def extractUserId(_email):
+    session = get_db()
     User = session.query(userData).filter_by(email=_email).one()
     return User.id
 
 
 def extractUserName(id):
+    session = get_db()
     User = session.query(userData).filter_by(id=id).one()
     return User.name
 
 
 def userId(id,emailId):
     userId = extractUserId(emailId)
+    session = get_db()
     try:
         user = session.query(userData).filter_by(id=id).one()
         if not (isUserAuthorized(user.id, userId)):
@@ -107,6 +142,7 @@ def userId(id,emailId):
 
 ##TODO To delete requests/proposals for the user
 def deleteUser(_id):
+    session = get_db()
     try:
         user = session.query(userData).filter_by(id=_id).one()
     except Exception:
@@ -118,6 +154,7 @@ def deleteUser(_id):
 
 
 def modifyUser(id):
+    session = get_db()
     try:
         user = session.query(userData).filter_by(id = id).one()
     except Exception as err:
@@ -142,6 +179,7 @@ def modifyUser(id):
 
 
 def getUser(id):
+    session = get_db()
     try:
         user = session.query(userData).filter_by(id = id).one()
         return jsonify(UserDetails=[user.serialize])

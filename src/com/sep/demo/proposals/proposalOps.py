@@ -1,6 +1,6 @@
 import json
 
-from flask import request, jsonify
+from flask import Flask, request, jsonify, _app_ctx_stack
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import sessionmaker
 
@@ -9,11 +9,37 @@ from src.com.sep.demo.requests.requestOps import extractUser, acceptRequest
 from src.com.sep.demo.users.usersOps import extractUserId, extractUserName
 from src.com.sep.demo.utils.responseCode import returnStatus
 
-engine = create_engine('sqlite:///proposals/Proposal.db')
-Base.metadata.bind = engine
+engine = create_engine('sqlite:///../../../../generated/Proposal.db')
 
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+app = Flask(__name__)
+
+
+def get_db():
+    """
+    Opens a new database connection if there is none yet for the
+    current application context.
+    """
+    top = _app_ctx_stack.top
+    if not hasattr(top, 'sqlite_db'):
+        DBSession = sessionmaker(bind=engine)
+        top.sqlite_db = DBSession()
+    return top.sqlite_db
+
+
+@app.cli.command('initdb')
+def initdb_command():
+    """Initialize the database."""
+    Base.metadata.bind = engine
+    print('Initialized the database.')
+
+
+@app.teardown_appcontext
+def close_database(exception):
+    """Closes the database again at the end of the request."""
+    top = _app_ctx_stack.top
+    if hasattr(top, 'sqlite_db'):
+        top.sqlite_db.close()
+
 
 def proposalFunc(email):
     if request.method == 'GET':
@@ -34,6 +60,7 @@ def createProposal(email):
     rdata = request.data
     rawdata = json.loads(rdata)
     jsonData = rawdata["ProposalDetails"]
+    session = get_db()
     try:
         for item in jsonData:
             request_id = item.get("requestId")
@@ -69,6 +96,7 @@ def createProposal(email):
 
 def getProposals(email):
     userProposedFrom = extractUserName(extractUserId(email))
+    session = get_db()
     try:
         proposal = session.query(proposalData)\
             .filter((proposalData.user_proposed_from == userProposedFrom)
@@ -82,6 +110,7 @@ def getProposals(email):
     return jsonify(ProposalDetails=[i.serialize for i in proposal])
 
 def getProposal(id,email):
+    session = get_db()
     userProposedFrom = extractUserName(extractUserId(email))
     try:
         proposal = session.query(proposalData).filter_by(id=id)
@@ -102,6 +131,7 @@ def getProposal(id,email):
 
 def deleteProposal(id,email):
     userProposedFrom = extractUserName(extractUserId(email))
+    session = get_db()
     try:
         proposal = session.query(proposalData).filter_by(id=id)
         if proposal.count() == 0:
@@ -122,6 +152,7 @@ def deleteProposal(id,email):
 
 def modifyProposal(id,email):
     userProposedTo = extractUserName(extractUserId(email))
+    session = get_db()
     try:
         proposal = session.query(proposalData).filter_by(id=id)
         if proposal.count() == 0:

@@ -1,6 +1,6 @@
 import json
 
-from flask import request, jsonify
+from flask import Flask, request, jsonify, _app_ctx_stack
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import sessionmaker
 
@@ -9,11 +9,36 @@ from src.com.sep.demo.users.usersOps import extractUserId, isUserAuthorized
 from src.com.sep.demo.clients.geocode import getGeocodeLocation
 from src.com.sep.demo.utils.responseCode import returnStatus
 
-engine = create_engine('sqlite:///requests/Request.db')
-Base.metadata.bind = engine
+engine = create_engine('sqlite:///../../../../generated/Request.db')
 
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+app = Flask(__name__)
+
+
+def get_db():
+    """
+    Opens a new database connection if there is none yet for the
+    current application context.
+    """
+    top = _app_ctx_stack.top
+    if not hasattr(top, 'sqlite_db'):
+        DBSession = sessionmaker(bind=engine)
+        top.sqlite_db = DBSession()
+    return top.sqlite_db
+
+
+@app.cli.command('initdb')
+def initdb_command():
+    """Initialize the database."""
+    Base.metadata.bind = engine
+    print('Initialized the database.')
+
+
+@app.teardown_appcontext
+def close_database(exception):
+    """Closes the database again at the end of the request."""
+    top = _app_ctx_stack.top
+    if hasattr(top, 'sqlite_db'):
+        top.sqlite_db.close()
 
 def requestFunc(email):
     if request.method == 'GET':
@@ -44,6 +69,7 @@ def prepareRequest(emailId):
 def createRequest(email):
     meal_time, meal_type, longitude, latitude, location_string, userId = prepareRequest(email)
     newRequest = requestData(meal_time = meal_time, meal_type = meal_type, longitude = longitude, latitude = latitude, location_string = location_string, user_id = userId)
+    session = get_db()
     try:
         session.add(newRequest)
         session.commit()
@@ -62,8 +88,15 @@ def createRequest(email):
         return returnStatus("Something went wrong, we also dont know!!")
 
 def getRequest():
-    request = session.query(requestData).all()
-    return jsonify(RequestDetails=[i.serialize for i in request])
+    session = get_db()
+    try:
+        request = session.query(requestData).all()
+        return jsonify(RequestDetails=[i.serialize for i in request])
+    except exc.OperationalError:
+        return returnStatus("The database doesn't exist yet")
+    except Exception as err:
+        print err.message
+        return returnStatus("Database exception occurraed")
 
 def RequestId(id,emailId):
     if request.method == 'GET':
@@ -74,6 +107,7 @@ def RequestId(id,emailId):
         return deleteRequest(id,emailId)
 
 def getRequestId(id):
+    session = get_db()
     try:
         request = session.query(requestData).filter_by(id = id).one()
         return jsonify(RequestDetails=[request.serialize])
@@ -83,6 +117,7 @@ def getRequestId(id):
 
 def deleteRequest(id,emailId):
    userId = extractUserId(emailId)
+   session = get_db()
    try:
        requests = session.query(requestData).filter_by(id=id).one()
        if not (isUserAuthorized(requests.user_id, userId)):
@@ -95,6 +130,7 @@ def deleteRequest(id,emailId):
 
 def modifyRequest(id,emailId):
     new_meal_time, new_meal_type, new_longitude, new_latitude, new_location_string, userId = prepareRequest(emailId)
+    session = get_db()
     try:
         request = session.query(requestData).filter_by(id = id).one()
         if not (isUserAuthorized(request.user_id, userId)):
@@ -118,6 +154,7 @@ def modifyRequest(id,emailId):
     return returnStatus("Request modified!!")
 
 def extractUser(id):
+    session = get_db()
     try:
         request = session.query(requestData).filter_by(id=id).one()
         return request.user_id
@@ -126,6 +163,7 @@ def extractUser(id):
         return returnStatus("No such user exist!!")
 
 def acceptRequest(id):
+    session = get_db()
     try:
         request = session.query(requestData).filter_by(id=id).one()
         request.filled = True

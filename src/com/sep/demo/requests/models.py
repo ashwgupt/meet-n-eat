@@ -31,5 +31,5 @@ class requestData(Base):
         }
 
 
-engine = create_engine('sqlite:///requests/Request.db')
+engine = create_engine('sqlite:///../../../../generated/Request.db')
 Base.metadata.create_all(engine)

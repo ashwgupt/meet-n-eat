@@ -1,6 +1,13 @@
 ## Idea file
 .idea
 
-## DB and Compiled Python File
+## Compiled Python File
 **/*.pyc
+
+## Cache files
+.cache/**
+
+## Generated DB files
+generated/**
 **/*.db
+
