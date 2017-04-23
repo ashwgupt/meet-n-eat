@@ -9,10 +9,13 @@ from werkzeug.security import generate_password_hash,\
 from models import Base, userData
 from src.com.sep.demo.utils.responseCode import returnStatus
 
-engine = create_engine('sqlite:///../../../../generated/Users.db')
-
 app = Flask(__name__)
 
+#Configurations
+USER_DB = 'C:\\Users\\Admin\\development\\meet-n-eat\\generated\\Users.db'
+USER_SQLITE_URL = 'sqlite:///' + USER_DB
+
+engine = create_engine(USER_SQLITE_URL)
 
 def get_db():
     """

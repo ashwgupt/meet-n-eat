@@ -9,10 +9,13 @@ from src.com.sep.demo.requests.requestOps import extractUser, acceptRequest
 from src.com.sep.demo.users.usersOps import extractUserId, extractUserName
 from src.com.sep.demo.utils.responseCode import returnStatus
 
-engine = create_engine('sqlite:///../../../../generated/Proposal.db')
-
 app = Flask(__name__)
 
+#Configurations
+PROPOSALS_DB = 'C:\\Users\\Admin\\development\\meet-n-eat\\generated\\Proposals.db'
+PROPOSALS_SQLITE_URL = 'sqlite:///' + PROPOSALS_DB
+
+engine = create_engine(PROPOSALS_SQLITE_URL)
 
 def get_db():
     """

@@ -8,6 +8,10 @@ from users import usersOps
 auth = HTTPBasicAuth()
 app = Flask(__name__)
 
+app.config.from_object(usersOps)
+app.config.from_object(requestOps)
+app.config.from_object(proposalOps)
+
 @app.route("/api/v1/users", methods = ['POST', 'GET'])
 def users():
     return usersOps.userFunction()

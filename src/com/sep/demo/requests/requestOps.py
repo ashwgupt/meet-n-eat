@@ -9,9 +9,13 @@ from src.com.sep.demo.users.usersOps import extractUserId, isUserAuthorized
 from src.com.sep.demo.clients.geocode import getGeocodeLocation
 from src.com.sep.demo.utils.responseCode import returnStatus
 
-engine = create_engine('sqlite:///../../../../generated/Request.db')
-
 app = Flask(__name__)
+
+#Configurations
+REQUEST_DB = 'C:\\Users\\Admin\\development\\meet-n-eat\\generated\\Request.db'
+REQUEST_SQLITE_URL = 'sqlite:///' + REQUEST_DB
+
+engine = create_engine(REQUEST_SQLITE_URL)
 
 
 def get_db():
