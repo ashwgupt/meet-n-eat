@@ -24,5 +24,5 @@ class userData(Base):
         }
 
 
-engine = create_engine('sqlite:///../../../../generated/Users.db')
+engine = create_engine('sqlite:///C:\\Users\\Admin\\development\\meet-n-eat\\generated\\Users.db')
 Base.metadata.create_all(engine)

@@ -27,5 +27,5 @@ class proposalData(Base):
         }
 
 
-engine = create_engine('sqlite:///../../../../generated/Proposal.db')
+engine = create_engine('sqlite:///C:\\Users\\Admin\\development\\meet-n-eat\\generated\\Proposals.db')
 Base.metadata.create_all(engine)
